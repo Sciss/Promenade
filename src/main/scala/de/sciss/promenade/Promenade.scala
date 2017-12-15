@@ -13,7 +13,25 @@
 
 package de.sciss.promenade
 
+import de.sciss.synth.{GE, Ops}
+import de.sciss.synth.ugen.{Mix, NegatumControlProxy}
+
 object Promenade {
   final val paramCtlName  = "par"
   final val mixCtlName    = "mix"
+
+  final val inf = Float.PositiveInfinity
+
+  implicit class ConstOps(private val d: Double) extends AnyVal {
+    def ! : GE = {
+      NegatumControlProxy(d)
+    }
+  }
+
+  def mkMix(seq: GE*): GE = {
+    import Ops.stringToControl
+    val amp = Promenade.mixCtlName.kr(Vector.fill(seq.size)(1f))
+    val sig = (seq: GE) * amp
+    Mix(sig)
+  }
 }

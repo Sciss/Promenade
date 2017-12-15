@@ -24,6 +24,7 @@ import de.sciss.synth.{ControlSet, Server, ServerConnection, Synth, SynthDef, Sy
 
 import scala.swing.event.{ButtonClicked, ValueChanged}
 import scala.swing.{Alignment, BorderPanel, Button, FlowPanel, Frame, Label, ScrollPane, Swing, ToggleButton}
+import scala.util.Try
 
 object Main {
   def findCtl(ug: UGenGraph, name: String): Vec[Float] = {
@@ -34,11 +35,10 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    val df          = SynthGraph(Inputs.neg_9905128())
+    val df          = SynthGraph(Inputs.neg_3())
     val ug          = df.expand(DefaultUGenGraphBuilderFactory)
     val ctlValues0  = findCtl(ug, Promenade.paramCtlName)
     val numMix      = findCtl(ug, Promenade.mixCtlName  ).size
-
     Swing.onEDT(run(ug, ctlValues0, numMix = numMix))
   }
 
@@ -67,8 +67,11 @@ object Main {
       spin.minimumSize    = d
       spin.maximumSize    = d
       spin.listenTo(spin)
-      val b   = Button("Reset") {
+      val ggReset = Button("Reset") {
         m.setValue(v0.asInstanceOf[AnyRef])
+      }
+      val ggZero = Button("Zero") {
+        m.setValue(0.0)
       }
       spin.reactions += {
         case ValueChanged(_) =>
@@ -76,10 +79,10 @@ object Main {
           paramValues(i) = vNow
 //          spin.foreground = if (vNow == v0) Color.black else Color.blue
 //          spin.peer.getEditor.setBackground(if (vNow == v0) Color.white else Color.yellow)
-          b.background = if (vNow == v0) null else Color.yellow
+          ggReset.background = if (vNow == v0) null else Color.yellow
           setCtl()
       }
-      Seq(lb, spin, b)
+      Seq(lb, spin, ggReset, ggZero)
     }
 
     val g = new GroupPanel {
@@ -110,7 +113,7 @@ object Main {
       import de.sciss.synth.Ops._
       val _syn = Synth.play("neg", args = mkCtl())
       val _old = syn
-      _old.foreach(_.free())
+      Try(_old.foreach(_.free()))
       syn = Some(_syn)
     }
 
@@ -121,7 +124,7 @@ object Main {
     val bp = new BorderPanel {
       add(new FlowPanel(sp, ggPlay) , BorderPanel.Position.North  )
       add(new ScrollPane(g)         , BorderPanel.Position.Center )
-      if (numMix > 1) add(new FlowPanel(ggMix: _*)  , BorderPanel.Position.South  )
+      if (numMix > 1) add(new FlowPanel(ggMix: _*), BorderPanel.Position.South  )
     }
 
     new Frame {
