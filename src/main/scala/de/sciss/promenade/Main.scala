@@ -35,7 +35,7 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    val df          = SynthGraph(Inputs.neg_3())
+    val df          = SynthGraph(Input5.apply())
     val ug          = df.expand(DefaultUGenGraphBuilderFactory)
     val ctlValues0  = findCtl(ug, Promenade.paramCtlName)
     val numMix      = findCtl(ug, Promenade.mixCtlName  ).size
