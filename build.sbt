@@ -12,3 +12,4 @@ libraryDependencies ++= Seq(
   "de.sciss" %% "negatum" % "0.4.0"
 )
 
+resolvers          += "Oracle Repository" at "http://download.oracle.com/maven"  // required for sleepycat (although not used)
