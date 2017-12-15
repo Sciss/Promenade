@@ -1,5 +1,5 @@
 name         := "Promenade"
-version      := "0.1.0-SNAPSHOT"
+version      := "0.1.0"
 description  := "A sound piece"
 organization := "de.sciss"
 homepage     := Some(url(s"https://github.com/Sciss/${name.value}"))
