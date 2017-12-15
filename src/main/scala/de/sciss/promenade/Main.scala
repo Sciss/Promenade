@@ -20,43 +20,44 @@ import de.sciss.kollflitz.Vec
 import de.sciss.swingplus.{GroupPanel, Spinner}
 import de.sciss.synth.impl.DefaultUGenGraphBuilderFactory
 import de.sciss.synth.swing.ServerStatusPanel
-import de.sciss.synth.ugen.NegatumControlProxy
 import de.sciss.synth.{ControlSet, Server, ServerConnection, Synth, SynthDef, SynthGraph, UGenGraph}
 
-import scala.swing.event.ValueChanged
-import scala.swing.{Alignment, BorderPanel, Button, FlowPanel, Frame, Label, ScrollPane, Swing}
+import scala.swing.event.{ButtonClicked, ValueChanged}
+import scala.swing.{Alignment, BorderPanel, Button, FlowPanel, Frame, Label, ScrollPane, Swing, ToggleButton}
 
 object Main {
-  def main(args: Array[String]): Unit = {
-    val df = SynthGraph(Inputs.neg_9905128())
-//    println(s"Num constants: ${Inputs.count}; unique ${Inputs.set.size}")
-//    println(df.controlProxies.size)
-    val ug = df.expand(DefaultUGenGraphBuilderFactory)
-//    println("control names")
-//    println(ug.controlNames)
-//    println("control value")
-//    println(ug.controlValues)
-    val i       = ug.controlNames.indexWhere(_._1 == NegatumControlProxy.ctlName)
+  def findCtl(ug: UGenGraph, name: String): Vec[Float] = {
+    val i       = ug.controlNames.indexWhere(_._1 == name)
     val off     = ug.controlNames(i)._2
     val stop    = if (i + 1 == ug.controlNames.size) ug.controlValues.size else ug.controlNames(i + 1)._2
-    val numCtl  = stop - off
-
-//    assert(ug.controlNames.headOption.contains(NegatumControlProxy.ctlName -> 0), ug.controlNames)
-//    assert(ug.controlNames.size > 1)
-//    val numCtl      = ug.controlNames(1)._2
-    val ctlValues0  = ug.controlValues.slice(off, stop)
-
-    Swing.onEDT(run(ug, ctlValues0))
+    ug.controlValues.slice(off, stop)
   }
 
-  def run(ug: UGenGraph, ctlValues0: Vec[Float]): Unit = {
-    val ctlValues = ctlValues0.toArray
-    var syn       = Option.empty[Synth]
+  def main(args: Array[String]): Unit = {
+    val df          = SynthGraph(Inputs.neg_9905128())
+    val ug          = df.expand(DefaultUGenGraphBuilderFactory)
+    val ctlValues0  = findCtl(ug, Promenade.paramCtlName)
+    val numMix      = findCtl(ug, Promenade.mixCtlName  ).size
 
-    def mkCtl: ControlSet =
-      NegatumControlProxy.ctlName -> ctlValues.toVector
+    Swing.onEDT(run(ug, ctlValues0, numMix = numMix))
+  }
 
-    val gg = ctlValues0.zipWithIndex.map { case (v0, i) =>
+  def run(ug: UGenGraph, ctlValues0: Vec[Float], numMix: Int): Unit = {
+    val paramValues = ctlValues0.toArray
+    val mixValues   = Array.fill[Float](numMix)(1f)
+    var syn         = Option.empty[Synth]
+
+    def mkCtl(): Seq[ControlSet] = Seq(
+      Promenade.paramCtlName -> paramValues.toVector,
+      Promenade.mixCtlName   -> mixValues  .toVector
+    )
+
+    def setCtl(): Unit = {
+      import de.sciss.synth.Ops._
+      syn.foreach(_.set(mkCtl(): _*))
+    }
+
+    val ggParam = ctlValues0.zipWithIndex.map { case (v0, i) =>
       val m     = new SpinnerNumberModel(v0, Double.MinValue, Double.MaxValue, 0.01)
       val lb    = new Label(i.toString, Swing.EmptyIcon, Alignment.Trailing)
       val spin  = new Spinner(m)
@@ -72,12 +73,11 @@ object Main {
       spin.reactions += {
         case ValueChanged(_) =>
           val vNow = m.getNumber.floatValue()
-          ctlValues(i) = vNow
+          paramValues(i) = vNow
 //          spin.foreground = if (vNow == v0) Color.black else Color.blue
 //          spin.peer.getEditor.setBackground(if (vNow == v0) Color.white else Color.yellow)
           b.background = if (vNow == v0) null else Color.yellow
-          import de.sciss.synth.Ops._
-          syn.foreach(_.set(mkCtl))
+          setCtl()
       }
       Seq(lb, spin, b)
     }
@@ -85,18 +85,30 @@ object Main {
     val g = new GroupPanel {
       type E = GroupPanel.Element
       horizontal = Seq(
-        gg.transpose.map { col => Par(col.map(x => x: E): _*) }: _*
+        ggParam.transpose.map { col => Par(col.map(x => x: E): _*) }: _*
       )
       vertical = Seq(
-        gg.map { row => Par(Baseline)(row.map(x => x: E): _*) }: _*
+        ggParam.map { row => Par(Baseline)(row.map(x => x: E): _*) }: _*
       )
+    }
+
+    val ggMix = Seq.tabulate(numMix) { i =>
+      val gg = new ToggleButton(f"$i%2s")
+      gg.selected = true
+      gg.listenTo(gg)
+      gg.reactions += {
+        case ButtonClicked(_) =>
+          mixValues(i) = if (gg.selected) 1f else 0f
+          setCtl()
+      }
+      gg
     }
 
     val sp = new ServerStatusPanel
 
     def mkPlay(): Unit = {
       import de.sciss.synth.Ops._
-      val _syn = Synth.play("neg", args = mkCtl :: Nil)
+      val _syn = Synth.play("neg", args = mkCtl())
       val _old = syn
       _old.foreach(_.free())
       syn = Some(_syn)
@@ -107,8 +119,9 @@ object Main {
     }
 
     val bp = new BorderPanel {
-      add(new FlowPanel(sp, ggPlay), BorderPanel.Position.North)
-      add(new ScrollPane(g), BorderPanel.Position.Center)
+      add(new FlowPanel(sp, ggPlay) , BorderPanel.Position.North  )
+      add(new ScrollPane(g)         , BorderPanel.Position.Center )
+      if (numMix > 1) add(new FlowPanel(ggMix: _*)  , BorderPanel.Position.South  )
     }
 
     new Frame {
@@ -117,7 +130,7 @@ object Main {
       open()
 
       override def closeOperation(): Unit = {
-        sp.server.foreach(_.dispose())
+        sp.server.foreach(_.quit())
         sys.exit(0)
       }
     }
