@@ -23,6 +23,8 @@ object Input1 extends Input {
 //  situations(1) = Vector(11.000000f, 11.000000f)
   situations(1) = Vector(4814.381836f, 3.000000f)
 
+  // amp = -3.dbamp
+
   def apply(): Unit = { // 9905128
     // NegatumIn()
     val p1                = 5814.3823.!

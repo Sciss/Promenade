@@ -11,4 +11,6 @@ trait Input {
   def apply(): Unit
 
   val situations: Array[Vec[Float]] = Array.fill(2)(Vector.empty)
+
+  var amp: Double = 1.0
 }
