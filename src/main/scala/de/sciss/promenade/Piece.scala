@@ -32,13 +32,15 @@ object Piece {
   }
 
   val USE_PAN     : Boolean = true
-  val NUM_BREAKS  : Int     = 100
+  val NUM_BREAKS  : Int     = 50 // 100
   val FADE_IN     : Double  = 60.0 * 2
   val FADE_OUT    : Double  = 60.0 * 2
-  val FADE_CROSS  : Double  = 60.0 * 6
+  val FADE_CROSS  : Double  = 60.0 * 3 // 6
   val DLY_BETWEEN : Double  = 30.0
   val DUR_SCALE   : Double  = 1.0
   val AMP_SCALE   : Double  = -21.dbamp
+
+  val DEBUG_POLL  : Boolean = false
 
   def main(args: Array[String]): Unit = {
     NegatumOut.PAN2 = USE_PAN
@@ -89,8 +91,8 @@ object Piece {
         //            val ln    = EnvGen.ar(Env(from, List(Env.Segment(dur, to, curve))))
 
         val index0  = EnvGen.ar(Env(0.0, List(Seg(durFadeIn + durDlyAll, 0), Seg(durCross, 1))))
-        if (idx == 0) index0.poll(1, "indx-0")
-        if (idx == 1) index0.poll(1, "indx-1")
+        if (DEBUG_POLL && idx == 0) index0.poll(1, "indx-0")
+        if (DEBUG_POLL && idx == 1) index0.poll(1, "indx-1")
 //        val index0  = Line.ar(0, 1, dur)
         val dustPeriod = durCross / NUM_BREAKS
 //        val index1  = index0.roundTo(1.0/NUM_BREAKS)
@@ -124,10 +126,14 @@ object Piece {
       val ceil                  = 1.0 //  + floor
       val durFdInDly      : GE  = Vector.tabulate(numInputs)(idx => idx * durDly1)
       val durCrossBrutto  : GE  = Vector.tabulate(numInputs)(idx => (numInputs - 1 - idx) * durDly1 + durCross)
+      val totalDur = durDlyAll + durDlyAll + durFadeIn + durCross + durFadeOut
+      Line.kr(totalDur, 0, totalDur).roundTo(1).poll(1, "t")
       val env   = Env(floor, List(Seg(durFdInDly, floor), Seg(durFadeIn, ceil, Curve.exp), Seg(durCrossBrutto, ceil), Seg(durFadeOut, floor, Curve.exp)))
       val fd    = EnvGen.ar(env) - floor
-      (fd \ 0).poll(1, "main-0")
-      (fd \ 1).poll(1, "main-1")
+      if (DEBUG_POLL) {
+        (fd \ 0).poll(1, "main-0")
+        (fd \ 1).poll(1, "main-1")
+      }
       val sig   = in * fd
       ReplaceOut.ar(0, sig)
     }
