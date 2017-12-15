@@ -1,5 +1,5 @@
 /*
- *  Inputs_5_8.scala
+ *  Input5.scala
  *  (Promenade)
  *
  *  Copyright (c) 2017 Hanns Holger Rutz. All rights reserved.
@@ -16,7 +16,7 @@ package de.sciss.promenade
 import de.sciss.synth._
 import de.sciss.synth.ugen._
 
-object Input5 {
+object Input5 extends Input {
 
   import Promenade._
 

@@ -16,7 +16,7 @@ package de.sciss.promenade
 import de.sciss.synth._
 import de.sciss.synth.ugen._
 
-object Input4 {
+object Input4 extends Input {
   import Promenade._
 
   def apply(): Unit = { // dac2395e

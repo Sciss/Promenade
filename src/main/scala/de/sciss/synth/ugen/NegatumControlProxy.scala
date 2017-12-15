@@ -15,7 +15,7 @@ package de.sciss.synth.ugen
 
 import de.sciss.promenade.Promenade
 import de.sciss.synth.UGenSource.Vec
-import de.sciss.synth.{ControlRated, UGen, UGenGraph, control}
+import de.sciss.synth.{AudioRated, UGen, UGenGraph, audio}
 
 import scala.collection.breakOut
 
@@ -35,11 +35,11 @@ object NegatumControlProxy {
     }
 
     protected def makeUGen(numChannels: Int, specialIndex: Int): UGen =
-      impl.ControlImpl("Control", control, numChannels = numChannels, specialIndex = specialIndex)
+      impl.ControlImpl("AudioControl", audio, numChannels = numChannels, specialIndex = specialIndex)
   }
 }
 final case class NegatumControlProxy(value: Double)
-  extends ControlProxyLike with ControlRated {
+  extends ControlProxyLike with AudioRated {
 
   def values: Vec[Float] = Vector.empty :+ value.toFloat
 

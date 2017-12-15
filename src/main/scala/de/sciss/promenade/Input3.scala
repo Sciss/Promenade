@@ -16,7 +16,7 @@ package de.sciss.promenade
 import de.sciss.synth._
 import de.sciss.synth.ugen._
 
-object Input3 {
+object Input3 extends Input {
   import Promenade._
 
   def apply(): Unit = { // f7dcc808
