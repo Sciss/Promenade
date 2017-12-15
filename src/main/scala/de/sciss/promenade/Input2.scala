@@ -19,6 +19,9 @@ import de.sciss.synth.ugen._
 object Input2 extends Input {
   import Promenade._
 
+  situations(0) = Vector(1.100000f, 1300.525146f, -4524.842773f)
+  situations(1) = Vector(1.700000f, 1.000000f, -79.400002f)
+
   def apply(): Unit = { // b65a1e0d
     // NegatumIn()
     val c0              = 0.030771492 // .!

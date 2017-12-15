@@ -29,7 +29,7 @@ import scala.util.Try
 
 object Explore {
   def main(args: Array[String]): Unit = {
-    Swing.onEDT(run(Input2))
+    Swing.onEDT(run(Input7))
   }
 
   def findCtl(ug: UGenGraph, name: String): Vec[Float] = {
@@ -40,7 +40,7 @@ object Explore {
   }
 
   def run(input: Input): Unit = {
-    val df          = SynthGraph(Input1())
+    val df          = SynthGraph(input())
     val ug          = df.expand(DefaultUGenGraphBuilderFactory)
     val ctlValues0  = findCtl(ug, Promenade.paramCtlName)
     val numMix      = findCtl(ug, Promenade.mixCtlName  ).size
@@ -180,13 +180,16 @@ object Explore {
           val df = SynthDef("line") {
             import de.sciss.synth._
             import ugen._
-            val from  = "a"   .ir(Vector.fill(numParams)(0f))
-            val to    = "b"   .ir(Vector.fill(numParams)(0f))
-            val dur   = "dur" .ir
-            val bus   = "bus" .kr
-            val curve = Curve.sine
+            val from    = "a"   .ir(Vector.fill(numParams)(0f))
+            val to      = "b"   .ir(Vector.fill(numParams)(0f))
+            val dur     = "dur" .ir
+            val bus     = "bus" .kr
+            val curve   = Curve.sine
 //            val ln    = Line.ar(from, to, dur)
-            val ln    = EnvGen.ar(Env(from, List(Env.Segment(dur, to, curve))))
+//            val ln    = EnvGen.ar(Env(from, List(Env.Segment(dur, to, curve))))
+            val index0  = Line.ar(0, 1, dur)
+            val index   = index0.roundTo(0.01) * dur
+            val ln      = IEnvGen.ar(IEnv(from, List(Env.Segment(dur, to, curve))), index = index)
 //            ln.poll(1, "ln")
             Out.ar(bus, ln)
           }
@@ -255,7 +258,7 @@ object Explore {
       sp.booting = Some(Server.boot() {
         case ServerConnection.Running(s) =>
           import de.sciss.synth.Ops._
-          s.dumpOSC()
+//          s.dumpOSC()
           SynthDef("neg", ug).recv(s, completion = { _: SynthDef =>
             Swing.onEDT {
               sp.server = Some(s)
