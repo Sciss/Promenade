@@ -1,6 +1,6 @@
 /*
- *  Promenade.scala
- *  (Promenade)
+ *  Util.scala
+ *  (Seven Bees)
  *
  *  Copyright (c) 2017 Hanns Holger Rutz. All rights reserved.
  *
@@ -11,12 +11,12 @@
  *  contact@sciss.de
  */
 
-package de.sciss.promenade
+package de.sciss.sevenbees
 
 import de.sciss.synth.{GE, Ops}
 import de.sciss.synth.ugen.{Mix, NegatumControlProxy}
 
-object Promenade {
+object Util {
   final val paramCtlName  = "par"
   final val mixCtlName    = "mix"
 
@@ -30,7 +30,7 @@ object Promenade {
 
   def mkMix(seq: GE*): GE = {
     import Ops.stringToControl
-    val amp = Promenade.mixCtlName.kr(Vector.fill(seq.size)(1f))
+    val amp = Util.mixCtlName.kr(Vector.fill(seq.size)(1f))
     val sig = (seq: GE) * amp
     Mix(sig)
   }

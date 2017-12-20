@@ -1,6 +1,6 @@
 /*
  *  Explore.scala
- *  (Promenade)
+ *  (Seven Bees)
  *
  *  Copyright (c) 2017 Hanns Holger Rutz. All rights reserved.
  *
@@ -11,7 +11,7 @@
  *  contact@sciss.de
  */
 
-package de.sciss.promenade
+package de.sciss.sevenbees
 
 import java.awt.Color
 import javax.swing.SpinnerNumberModel
@@ -29,7 +29,7 @@ import scala.util.Try
 
 object Explore {
   def main(args: Array[String]): Unit = {
-    Swing.onEDT(run(Input7))
+    Swing.onEDT(run(Bee7))
   }
 
   def findCtl(ug: UGenGraph, name: String): Vec[Float] = {
@@ -39,19 +39,19 @@ object Explore {
     ug.controlValues.slice(off, stop)
   }
 
-  def run(input: Input): Unit = {
+  def run(input: Bee): Unit = {
     val df          = SynthGraph(input())
     val ug          = df.expand(DefaultUGenGraphBuilderFactory)
-    val ctlValues0  = findCtl(ug, Promenade.paramCtlName)
-    val numMix      = findCtl(ug, Promenade.mixCtlName  ).size
+    val ctlValues0  = findCtl(ug, Util.paramCtlName)
+    val numMix      = findCtl(ug, Util.mixCtlName  ).size
 
     val paramValues = ctlValues0.toArray
     val mixValues   = Array.fill[Float](numMix)(1f)
     var syn         = Option.empty[Synth]
 
     def mkCtl(): Seq[ControlSet] = Seq(
-      Promenade.paramCtlName -> paramValues.toVector,
-      Promenade.mixCtlName   -> mixValues  .toVector
+      Util.paramCtlName -> paramValues.toVector,
+      Util.mixCtlName   -> mixValues  .toVector
     )
 
     def setCtl(): Unit = {
@@ -201,7 +201,7 @@ object Explore {
           df.recv(s, completion = { df: SynthDef =>
             val mNew = res.newMsg(df.name, target = s, addAction = addToHead, args = List(
               "a" -> input.situations(0), "b" -> input.situations(1), "dur" -> 30f, "bus" -> bus.index))
-            val mMap = syn.get.mapanMsg(Promenade.paramCtlName -> bus)
+            val mMap = syn.get.mapanMsg(Util.paramCtlName -> bus)
             s ! osc.Bundle.now(mNew, mMap)
             res.onEnd {
               bus.free()

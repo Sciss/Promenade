@@ -1,6 +1,6 @@
 /*
- *  Input4.scala
- *  (Promenade)
+ *  Bee4.scala
+ *  (Seven Bees)
  *
  *  Copyright (c) 2017 Hanns Holger Rutz. All rights reserved.
  *
@@ -11,18 +11,19 @@
  *  contact@sciss.de
  */
 
-package de.sciss.promenade
+package de.sciss.sevenbees
 
 import de.sciss.synth._
 import de.sciss.synth.ugen._
 
-object Input4 extends Input {
-  import Promenade._
+object Bee4 extends Bee {
+  import Util._
 
   situations(0) = Vector(0.057681f, -365.493896f, -1764.729858f, 11909.467773f)
   situations(1) = Vector(111.038002f, -8865.494141f, -741.729980f, 11050.408203f)
 
-  def apply(): Unit = { // dac2395e
+  // dac2395e
+  def apply(): Unit = {
     val p1              = -365.4939.!
     val p2              = -1764.7299.!
     val p3              = 11909.468.!

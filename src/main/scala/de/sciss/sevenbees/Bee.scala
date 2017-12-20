@@ -1,13 +1,13 @@
-package de.sciss.promenade
+package de.sciss.sevenbees
 
 import de.sciss.synth.UGenSource.Vec
 
-object Input {
-  val seq: Seq[Input] = Seq(
-    Input1, Input2, Input3, Input4, Input5, Input6, Input7
+object Bee {
+  val seq: Seq[Bee] = Seq(
+    Bee1, Bee2, Bee3, Bee4, Bee5, Bee6, Bee7
   )
 }
-trait Input {
+trait Bee {
   def apply(): Unit
 
   val situations: Array[Vec[Float]] = Array.fill(2)(Vector.empty)

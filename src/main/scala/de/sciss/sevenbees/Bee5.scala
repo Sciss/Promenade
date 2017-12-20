@@ -1,6 +1,6 @@
 /*
- *  Input5.scala
- *  (Promenade)
+ *  Bee5.scala
+ *  (Seven Bees)
  *
  *  Copyright (c) 2017 Hanns Holger Rutz. All rights reserved.
  *
@@ -11,20 +11,21 @@
  *  contact@sciss.de
  */
 
-package de.sciss.promenade
+package de.sciss.sevenbees
 
 import de.sciss.synth._
 import de.sciss.synth.ugen._
 
-object Input5 extends Input {
-  import Promenade._
+object Bee5 extends Bee {
+  import Util._
 
   situations(0) = Vector(3.995302f, 3210.302979f, 0.500000f, -1810.795776f, 0.200000f, 85.629959f, 0.039563f, 0.024074f)
 //  situations(1) = Vector(-995.000000f, 1.303000f, 1.360000f, -910.796021f, 0.400000f, 295.630005f, 0.010000f, -1.024000f)
 //  situations(1) = Vector(-995.000000f, 3210.302979f, 3.000000f, 0.000000f, 0.200000f, 85.629959f, 0.039563f, 0.024074f)
   situations(1) = Vector(22115.000000f, 3210.302979f, 2.720000f, 0.000000f, 0.200000f, 85.629959f, 0.039563f, 0.024074f)
 
-  def apply(): Unit = { // e8944a47
+  // e8944a47
+  def apply(): Unit = {
     // NegatumIn()
     val p1              = 3.9953024.!
     val p2              = 3210.303.!
